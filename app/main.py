@@ -1,8 +1,3 @@
-
-
-model_name = "cristina-v-melnic-data-science-retreat/apple banana orange/resnet18:v0"
-
-
 from fastapi import FastAPI, Depends, UploadFile, File
 from pydantic import BaseModel # This has nothing to do with machine learning models, 
 # parent class for everything that is strictly typed in pydantic
