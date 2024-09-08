@@ -8,7 +8,7 @@ import io
 import torch
 import torch.nn.functional as F
 
-from app.model import load_model, load_transforms, CATEGORIES
+from model import load_model, load_transforms, CATEGORIES
 
 # The result from the api is of a pydantic class
 # strictly typed to return 
@@ -31,12 +31,13 @@ async def predict(
                                               # at least 45 MB for each user. Flask has a single model and it takes turns in replying.
                                               # There are strategies for load balancing. You serve asynchronously until the load is higher
                                               #  then you start serving in a queue. 
+                                              # with async, it won't start until load_model is executed, because of the "Depends" keyword
         transforms: transforms.Compose = Depends(load_transforms)
 ) -> Result:
     # Read the uploaded image
     image = Image.open(io.BytesIO(await input_image.read()))
 
-    # Convert RGBA image to RGB image
+    # Convert RGBA image to RGB image, to get rid of the alpha channel on dim=4
     if image.mode == 'RGBA':
         image = image.convert('RGB')
 
@@ -46,10 +47,12 @@ async def predict(
     # Make the prediction
     with torch.no_grad():
         outputs = model(image)
+        # TODO: set up a breakpoint to understand outputs[0] and dim=0
         probabilities = F.softmax(outputs[0], dim=0)
         confidence, predicted_class = torch.max(probabilities, 0)
 
     # Map the predicted class index to the category
+    # .item() takes only the value in the torch.tensor
     category = CATEGORIES[predicted_class.item()]
 
     return Result(category=category, confidence=confidence.item())

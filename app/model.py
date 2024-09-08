@@ -14,8 +14,6 @@ WANDB_API_KEY = os.getenv('WANDB_API_KEY')
 MODELS_DIR = "models"
 MODEL_FILE_NAME = "model.pth"
 
-
-
 CATEGORIES = ["freshapples", "freshbanana", "freshoranges", "rottenapples", "rottenbanana", "rottenoranges"]
 
 
@@ -34,10 +32,14 @@ def download_artifact():
 
 
 def get_raw_model() -> ResNet:
+    # raw model means architecture, no weights yet.
+
     # overwrite final classifier layer with our own output layers
     N_CLASSES = 6
 
     model = resnet18(weights=None)
+
+    # Check that this architecture is the same as the one in kaggle.
     model.fc = nn.Sequential(
         nn.Linear(512, 512),
         nn.ReLU(),
@@ -46,14 +48,14 @@ def get_raw_model() -> ResNet:
 
     return model
 
-
 def load_model() -> ResNet:
     download_artifact()
 
     model = get_raw_model()
     model_state_dict_path = os.path.join(MODELS_DIR, MODEL_FILE_NAME)
+    # model_state_dict puts the weights into the architecture.
     model_state_dict = torch.load(model_state_dict_path, map_location="cpu")
-    model.load_state_dict(model_state_dict, strict=False)
+    model.load_state_dict(model_state_dict, strict=True)
     model.eval()
 
     return model
@@ -67,4 +69,3 @@ def load_transforms() -> transforms.Compose:
         transforms.Normalize([0.485, 0.456, 0.406],
                              [0.229, 0.224, 0.225])
     ])
-
