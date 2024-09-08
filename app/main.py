@@ -8,7 +8,7 @@ import io
 import torch
 import torch.nn.functional as F
 
-from model import load_model, load_transforms, CATEGORIES
+from app.model import load_model, load_transforms, CATEGORIES
 
 # The result from the api is of a pydantic class
 # strictly typed to return 

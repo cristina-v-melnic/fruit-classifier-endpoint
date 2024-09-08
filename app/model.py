@@ -5,9 +5,9 @@ import wandb
 from torch import nn
 from torchvision import transforms
 from torchvision.models import resnet18, ResNet
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 
 WANDB_API_KEY = os.getenv('WANDB_API_KEY')
 
